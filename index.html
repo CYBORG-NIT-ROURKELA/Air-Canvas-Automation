@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
+        crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <div class="container" style="display: flex;">
+        <video class="input_video"></video>
+        <canvas class="output_canvas" width="750px" height="500px"></canvas>
+        <div class="info">
+            <h2 class="distance"></h2>
+            <h3 class="signs"></h3>
+            <h2 class="position"></h2>
+        </div>
+    </div>
+    <script type="module">
+        const distElement = document.getElementsByClassName('distance')[0];
+        const signElement = document.getElementsByClassName('signs')[0];
+        distElement.innerText = `Keep your hand 40 to 50 cm away from the camera for sign detections.`;
+        signElement.innerText = `Drawing => Index Finger ; Erasing => Index + Middle Finger`;
+        const positionElement = document.getElementsByClassName('position')[0];
+        const videoElement = document.getElementsByClassName('input_video')[0];
+        videoElement.style.cssText = "-moz-transform: scale(-1, 1); -webkit-transform: scale(-1, 1); -o-transform: scale(-1, 1); transform: scale(-1, 1); filter: FlipH; display: none;";
+        const canvasElement = document.getElementsByClassName('output_canvas')[0];
+        canvasElement.style.cssText = "-moz-transform: scale(-1, 1); -webkit-transform: scale(-1, 1); -o-transform: scale(-1, 1); transform: scale(-1, 1); filter: FlipH;";
+        const canvasCtx = canvasElement.getContext('2d');
+
+        function onResults(results) {
+            canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            canvasCtx.drawImage(
+                results.image, 0, 0, canvasElement.width, canvasElement.height);
+            if (results.multiHandLandmarks) {
+                for (const landmarks of results.multiHandLandmarks) {
+                    drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS,
+                        { color: '#00FF00', lineWidth: 5 });
+                    drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 2 });
+                    const x1 = results.multiHandLandmarks[0][8].x;
+                    const y1 = results.multiHandLandmarks[0][8].y;
+                    const x2 = results.multiHandLandmarks[0][4].x;
+                    const y2 = results.multiHandLandmarks[0][4].y;
+                    const x3 = results.multiHandLandmarks[0][12].x;
+                    const y3 = results.multiHandLandmarks[0][12].y;
+                    const distance1 = Math.sqrt(Math.pow((x1 - x2), 2) + Math.pow((y1 - y2), 2));
+                    const distance2 = Math.sqrt(Math.pow((x3 - x2), 2) + Math.pow((y3 - y2), 2));
+                    const distance3 = Math.sqrt(Math.pow((x3 - x1), 2) + Math.pow((y3 - y1), 2));
+                    //   distElement.innerText = `Distance from index tip to thumb tip: ${distance1} Distance from middle tip to thumb tip: ${distance2} Distance from middle tip to index tip: ${distance3}`;
+                    if ((distance1 >= 0.1) && (distance2 <= 0.2)) {
+                        positionElement.innerText = "DRAWING POSITION";
+                        canvasCtx.beginPath();
+                        canvasCtx.arc(x1 * canvasElement.width, y1 * canvasElement.height, 5, 0, 2 * Math.PI);
+                        canvasCtx.fillStyle = "black";
+                        canvasCtx.fill();
+                        canvasCtx.save();
+                    }
+                    else if ((distance1 >= 0.1) && (distance2 >= 0.1) && (distance2 <= 0.4)) {
+                        positionElement.innerText = "ERASING POSITION";
+                    }
+                    else {
+                        positionElement.innerText = "DEFAULT POSITION";
+                    }
+                }
+            }
+        }
+
+        const hands = new Hands({
+            locateFile: (file) => {
+                return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+            }
+        });
+        hands.setOptions({
+            maxNumHands: 2,
+            modelComplexity: 1,
+            minDetectionConfidence: 0.5,
+            minTrackingConfidence: 0.5
+        });
+        hands.onResults(onResults);
+
+        const camera = new Camera(videoElement, {
+            onFrame: async () => {
+                await hands.send({ image: videoElement });
+            },
+            width: 750,
+            height: 350
+        });
+        camera.start();
+    </script>
+</body>
+
+</html>
