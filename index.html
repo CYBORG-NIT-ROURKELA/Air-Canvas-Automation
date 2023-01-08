@@ -42,7 +42,6 @@
         // paintElement.height = window.innerHeight;
         paintElement.style.cssText = "-moz-transform: scale(-1, 1); -webkit-transform: scale(-1, 1); -o-transform: scale(-1, 1); transform: scale(-1, 1); filter: FlipH; position: absolute; left: 0px; top: 0px; z-index: 1; background: transparent;";
         const paintCtx = paintElement.getContext('2d');
-
         function onResults(results) {
             canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
             canvasCtx.drawImage(
