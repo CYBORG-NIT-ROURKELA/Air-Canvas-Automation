@@ -22,7 +22,7 @@
             <h2 class="distance"></h2>
             <div class="color-choice">
                 <h2>pick a color:</h2>
-                <input id="color-choice" type="color" value="#00FF00">
+                <input id="color-choice" type="color" value="#000000">
             </div>
             <h3 class="signs"></h3>
             <h2 class="position"></h2>
@@ -96,10 +96,13 @@
                     }
                     else if ((distance1 >= 0.1) && (distance2 >= 0.1) && (distance2 <= 0.4)) {
                         positionElement.innerText = "ERASING POSITION";
-                        paintCtx.clearRect(0,0,canvasElement.width,canvasElement.height);
+                        // paintCtx.clearRect(0,0,canvasElement.width,canvasElement.height);
                         prev_x = undefined;
                         prev_y = undefined;
-                        // paintCtx.clearRect(x1 * canvasElement.width, y1 * canvasElement.height,50,50); ----> small rectangle erasing
+                        canvasCtx.fillStyle = "rgba(255, 255, 255,  0.3)";
+                        canvasCtx.fillRect(x1 * canvasElement.width, y1 * canvasElement.height,50,50);
+                        paintCtx.clearRect(x1 * canvasElement.width, y1 * canvasElement.height,50,50);
+                        continue;
                     }
                     else {
                         positionElement.innerText = "DEFAULT POSITION";
