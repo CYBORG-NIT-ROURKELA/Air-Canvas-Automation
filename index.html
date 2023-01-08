@@ -12,9 +12,12 @@
 </head>
 
 <body>
-    <div class="container" style="display: flex;">
+    <div class="container">
         <video class="input_video"></video>
-        <canvas class="output_canvas" width="750px" height="500px"></canvas>
+        <div class="on-screen" style="display:flex;">
+            <canvas class="output_canvas" width="750px" height="500px"></canvas>
+            <canvas class="paint_canvas" width="750px" height="500px"></canvas>
+        </div>
         <div class="info">
             <h2 class="distance"></h2>
             <h3 class="signs"></h3>
@@ -30,8 +33,15 @@
         const videoElement = document.getElementsByClassName('input_video')[0];
         videoElement.style.cssText = "-moz-transform: scale(-1, 1); -webkit-transform: scale(-1, 1); -o-transform: scale(-1, 1); transform: scale(-1, 1); filter: FlipH; display: none;";
         const canvasElement = document.getElementsByClassName('output_canvas')[0];
-        canvasElement.style.cssText = "-moz-transform: scale(-1, 1); -webkit-transform: scale(-1, 1); -o-transform: scale(-1, 1); transform: scale(-1, 1); filter: FlipH;";
+        // canvasElement.width = window.innerWidth;
+        // canvasElement.height = window.innerHeight;
+        canvasElement.style.cssText = "-moz-transform: scale(-1, 1); -webkit-transform: scale(-1, 1); -o-transform: scale(-1, 1); transform: scale(-1, 1); filter: FlipH; position: absolute; left: 0px; top: 0px; z-index: 0;";
         const canvasCtx = canvasElement.getContext('2d');
+        const paintElement = document.getElementsByClassName('paint_canvas')[0];
+        // paintElement.width = window.innerWidth;
+        // paintElement.height = window.innerHeight;
+        paintElement.style.cssText = "-moz-transform: scale(-1, 1); -webkit-transform: scale(-1, 1); -o-transform: scale(-1, 1); transform: scale(-1, 1); filter: FlipH; position: absolute; left: 0px; top: 0px; z-index: 1; background: transparent;";
+        const paintCtx = paintElement.getContext('2d');
 
         function onResults(results) {
             canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
@@ -51,17 +61,19 @@
                     const distance1 = Math.sqrt(Math.pow((x1 - x2), 2) + Math.pow((y1 - y2), 2));
                     const distance2 = Math.sqrt(Math.pow((x3 - x2), 2) + Math.pow((y3 - y2), 2));
                     const distance3 = Math.sqrt(Math.pow((x3 - x1), 2) + Math.pow((y3 - y1), 2));
-                    //   distElement.innerText = `Distance from index tip to thumb tip: ${distance1} Distance from middle tip to thumb tip: ${distance2} Distance from middle tip to index tip: ${distance3}`;
+                    // distElement.innerText = `Distance from index tip to thumb tip: ${distance1} Distance from middle tip to thumb tip: ${distance2} Distance from middle tip to index tip: ${distance3}`;
                     if ((distance1 >= 0.1) && (distance2 <= 0.2)) {
                         positionElement.innerText = "DRAWING POSITION";
-                        canvasCtx.beginPath();
-                        canvasCtx.arc(x1 * canvasElement.width, y1 * canvasElement.height, 5, 0, 2 * Math.PI);
-                        canvasCtx.fillStyle = "black";
-                        canvasCtx.fill();
-                        canvasCtx.save();
+                        paintCtx.beginPath();
+                        paintCtx.arc(x1 * canvasElement.width, y1 * canvasElement.height, 5, 0, 2 * Math.PI);
+                        paintCtx.fillStyle = "black";
+                        paintCtx.fill();
+                        paintCtx.save();
                     }
                     else if ((distance1 >= 0.1) && (distance2 >= 0.1) && (distance2 <= 0.4)) {
                         positionElement.innerText = "ERASING POSITION";
+                        paintCtx.clearRect(0,0,canvasElement.width,canvasElement.height);
+                        // paintCtx.clearRect(x1 * canvasElement.width, y1 * canvasElement.height,50,50); ----> small rectangle erasing
                     }
                     else {
                         positionElement.innerText = "DEFAULT POSITION";
