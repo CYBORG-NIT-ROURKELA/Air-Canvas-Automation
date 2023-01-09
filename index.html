@@ -24,17 +24,33 @@
             <h2 class="distance">
                 Keep your hand 40 to 50 cm away from the camera for sign detections.
             </h2>
-            <div class="color-choice" style="display: flex;">
-                <h2>pick a color:</h2>
-                <input id="color-choice" type="color" value="#000000">
+            <div class="choices" style="display: flex; flex-direction: column; justify-content: space-around;">
+                <div class="connector-choice">
+                    <h2>Show hand connectors:</h2>
+                    <input type="checkbox" id="connectors" value="connectors" checked>
+                </div>
+                <div class="color-choice">
+                    <h2>pick a color:</h2>
+                    <input id="color-choice" type="color" value="#000000">
+                </div>
+                <div class="line-width-choice">
+                    <h2>Pick the width of the line to be drawn[1 to 10 px]:</h2>
+                    <input type="range" min="1" max="10" value="5" class="slider" id="line-width">
+                </div>
+                <div class="eraser-choice">
+                    <h2>Pick the size of the eraser[10 to 100 px]:</h2>
+                    <input type="range" min="10" max="100" value="50" class="slider" id="eraser-size">
+                </div>
             </div>
             <h3 class="signs">
                 Drawing => Index Finger ; Erasing => Index + Middle Finger
             </h3>
             <h2 class="position"></h2>
+            <button class="clear-canvas">Clear Canvas</button>
         </div>
     </div>
     <script type="module">
+        var clearBtn = document.getElementsByClassName("clear-canvas")[0];
         var prev_x = undefined;
         var prev_y = undefined;
 
@@ -51,14 +67,19 @@
 
         function onResults(results) {
             let color = document.getElementById("color-choice").value;
+            let width = document.getElementById("line-width").value;
+            let size = document.getElementById("eraser-size").value;
+            let connect = document.getElementById("connectors");
             canvasCtx.drawImage(
                 results.image, 0, 0, canvasElement.width, canvasElement.height);
             if (results.multiHandLandmarks) {
                 for (const landmarks of results.multiHandLandmarks) {
 
-                    drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS,
-                        { color: '#00FF00', lineWidth: 5 });
-                    drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 2 });
+                    if (connect.checked) {
+                        drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS,
+                            { color: '#00FF00', lineWidth: 5 });
+                        drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 2 });
+                    }
 
                     const x1 = results.multiHandLandmarks[0][8].x;
                     const y1 = results.multiHandLandmarks[0][8].y;
@@ -71,21 +92,21 @@
                     const distance3 = Math.sqrt(Math.pow((x3 - x1), 2) + Math.pow((y3 - y1), 2));
                     if ((distance1 >= 0.1) && (distance2 <= 0.2)) {
                         positionElement.innerText = "DRAWING POSITION";
-                        if(prev_x && prev_y){
-                            paintCtx.lineWidth = 5;
+                        if (prev_x && prev_y) {
+                            paintCtx.lineWidth = width;
                             paintCtx.beginPath();
                             paintCtx.strokeStyle = `${color}`;
                             paintCtx.fillStyle = `${color}`;
                             paintCtx.moveTo(prev_x, prev_y);
-                            paintCtx.lineTo(x1 * canvasElement.width,  y1 * canvasElement.height);
+                            paintCtx.lineTo(x1 * canvasElement.width, y1 * canvasElement.height);
                             paintCtx.stroke();
                             paintCtx.closePath();
                             prev_x = x1 * canvasElement.width;
                             prev_y = y1 * canvasElement.height;
                         }
-                        else{
+                        else {
                             paintCtx.beginPath();
-                            paintCtx.arc(x1 * canvasElement.width, y1 * canvasElement.height, 5, 0, 2 * Math.PI);
+                            paintCtx.arc(x1 * canvasElement.width, y1 * canvasElement.height, width, 0, 2 * Math.PI);
                             paintCtx.fillStyle = `${color}`;
                             paintCtx.fill();
                             paintCtx.save();
@@ -95,12 +116,11 @@
                     }
                     else if ((distance1 >= 0.1) && (distance2 >= 0.1) && (distance2 <= 0.4)) {
                         positionElement.innerText = "ERASING POSITION";
-                        // paintCtx.clearRect(0,0,canvasElement.width,canvasElement.height);
                         prev_x = undefined;
                         prev_y = undefined;
                         canvasCtx.fillStyle = "rgba(255, 255, 255,  0.6)";
-                        canvasCtx.fillRect(x3 * canvasElement.width, y3 * canvasElement.height,50,50);
-                        paintCtx.clearRect(x3 * canvasElement.width, y3 * canvasElement.height,50,50);
+                        canvasCtx.fillRect(x3 * canvasElement.width, y3 * canvasElement.height, size, size);
+                        paintCtx.clearRect(x3 * canvasElement.width, y3 * canvasElement.height, size, size);
                         continue;
                     }
                     else {
@@ -108,7 +128,11 @@
                         prev_x = undefined;
                         prev_y = undefined;
                     }
+
                 }
+                clearBtn.addEventListener("click", function () {
+                    paintCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+                })
             }
         }
 
