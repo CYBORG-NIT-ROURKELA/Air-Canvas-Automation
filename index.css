@@ -1,0 +1,34 @@
+* {
+    margin: 0;
+    padding: 0;
+    text-align: center;
+}
+
+.input_video {
+    display: none;
+}
+
+.output_canvas {
+    -moz-transform: scale(-1, 1);
+    -webkit-transform: scale(-1, 1);
+    -o-transform: scale(-1, 1);
+    transform: scale(-1, 1);
+    filter: FlipH;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    z-index: 0;
+}
+
+.paint_canvas {
+    -moz-transform: scale(-1, 1);
+    -webkit-transform: scale(-1, 1);
+    -o-transform: scale(-1, 1);
+    transform: scale(-1, 1);
+    filter: FlipH;
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    z-index: 1;
+    background: transparent;
+}
