@@ -7,6 +7,9 @@
     font-family: 'Ubuntu Condensed', sans-serif;
 }
 
+body{
+    background-color: #737f8a;
+}
 .input_video {
     display: none;
 }
@@ -82,10 +85,22 @@ height: 100%;
 gap: 1rem;
 
 }
+.wrapper-btn{
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    width: 100%;
+    padding: 1rem;
+}
+#connector{
+    margin-top: 10px;
+width: 15px;
+height: 15px;
+}
 .navbar{
     height: 80px;
     font-size: 2.5em;
-    background-color: black;
+    background-color: #1d2024;
     color: white;
     justify-content: center;
     align-items: center;
@@ -116,7 +131,7 @@ gap: 1rem;
 @media screen and (max-width: 768px) {
     .container{
         grid-template-columns:  1fr;
-        grid-template-rows: 0.5fr 1fr 1fr;
+        grid-template-rows: 0.75fr 1fr 1fr;
         gap: 0;
         padding: 0;
     }
@@ -127,7 +142,7 @@ gap: 1rem;
         font-size: 1.5rem;
     }
     .color-choice{
-    padding: 1.5rem;
+    padding: .5rem;
     justify-content: flex-start;
 
     }

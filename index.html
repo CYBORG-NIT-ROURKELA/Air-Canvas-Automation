@@ -1,191 +1,259 @@
 <!DOCTYPE html>
 <html>
-
-<head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Air Canvas</title>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
-        crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
-        crossorigin="anonymous"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
-    <link href="./index.css" rel="stylesheet">
-</head>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"
+      crossorigin="anonymous"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"
+      crossorigin="anonymous"
+    ></script>
+    <link href="./index.css" rel="stylesheet" />
+  </head>
 
-<body>
+  <body>
     <nav class="navbar">
-        <div class="container-fluid justify-content-center">
-          <!-- <a class="navbar-brand" href="#">
-            <img src="/docs/5.0/assets/brand/bootstrap-logo.svg" alt="" width="30" height="24" class="d-inline-block align-text-top">
+      <!-- <div class="navbar-brand"> -->
+        <!-- <a class="navbar-brand" href="#">
+            <img src="" alt="" width="30" height="24">
         </a> -->
         <h1 class="text-primary">AIR CANVAS</h1>
-        </div>
-      </nav>
+      <!-- </div> -->
+    </nav>
     <div class="container">
-        <div class="info">
-            <h2 class="distance">
-                Keep your hand 40 to 50 cm away from the camera for sign detections.
-            </h2>            
-            <h3 class="signs">
-                Drawing => Index Finger ; 
-            </h3>
-            <h3>
-                Erasing => Index + Middle Finger;
-            </h3>
-            <h3 class="position"></h3>
+      <div class="info">
+        <h2 class="distance">
+          Keep your hand 40 to 50 cm away from the camera for sign detections.
+        </h2>
+        <h3 class="signs">Drawing => Index Finger ;</h3>
+        <h3>Erasing => Index + Middle Finger;</h3>
+        <h3 class="position"></h3>
+      </div>
+      <div class="on-screen">
+        <video class="input_video"></video>
+        <canvas class="output_canvas" id="canvas1"></canvas>
+        <canvas class="paint_canvas" id="canvas2"></canvas>
+      </div>
+      <div class="color-choice">
+        <div class="colorAndRange">
+          <div class="wrapper">
+            <span>Pen Size</span>
+            <input type="range" min="1" max="10" id="line_width" value="2" />
+            <span>Eraser Size</span>
+            <input
+              type="range"
+              min="10"
+              max="100"
+              id="eraser_width"
+              value="40"
+              step="10"
+            />
+          </div>
+          <div class="wrapper">
+            <span>Choose Color</span>
+            <div id="color-choice"></div>
+          </div>
         </div>
-        <div class="on-screen">
-            <video class="input_video"></video>
-            <canvas class="output_canvas"  id="canvas1"></canvas>
-            <canvas class="paint_canvas"  id="canvas2"></canvas>
+        <div class="wrapper-btn">
+          <div class="connector">
+            <span>Hand connector</span>
+            <input type="checkbox" id="connector" value="" />
+          </div>
+          <button id="btn">Clear All</button>
         </div>
-        <div class="color-choice">
-            <div class="colorAndRange">
-                <div class="wrapper">
-                    <span>Adjust Size</span>
-                    <input type="range" min="1" max="10" id="line_width" value="2">
-                </div>
-                <div class="wrapper">
-                    <span>Choose Color</span>
-                    <div id="color-choice"></div>
-                </div>
-            </div>
-            
-            <button id="btn">Clear All</button>
-        </div>
+      </div>
     </div>
 
     <!-- for color picking -->
-    <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script> 
+    <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
 
     <!-- module -->
     <script type="module">
-        var prev_x = undefined;
-        var prev_y = undefined;
+      var prev_x = undefined;
+      var prev_y = undefined;
 
-        //info variables
-        const positionElement = document.getElementsByClassName('position')[0];
+      //info variables
+      const positionElement = document.getElementsByClassName("position")[0];
 
-        //feed and drawing
-        const videoElement = document.getElementsByClassName('input_video')[0];
-        const canvasElement = document.getElementsByClassName('output_canvas')[0];
-        const canvasCtx = canvasElement.getContext('2d');
-        const paintElement = document.getElementsByClassName('paint_canvas')[0];
-        const paintCtx = paintElement.getContext('2d');
-        
-        //choose color
-        const colorPicker = new iro.ColorPicker("#color-choice", {width:80, color:"#fff", layout: [
-    { 
-      component: iro.ui.Wheel,
-      options: {}
-    },
-  ]});
-        
-        //input range 
-        const input = document.getElementById("line_width");
-        let line_width = input.value;
-        input.addEventListener("input", (event) => {
-            line_width = event.target.value;
-        });
+      //feed and drawing
+      const videoElement = document.getElementsByClassName("input_video")[0];
+      const canvasElement = document.getElementsByClassName("output_canvas")[0];
+      const canvasCtx = canvasElement.getContext("2d");
+      const paintElement = document.getElementsByClassName("paint_canvas")[0];
+      const paintCtx = paintElement.getContext("2d");
 
-        //clearing full canvas
-        const clearAll = () =>{
-            paintCtx.clearRect(0,0,canvasElement.width,canvasElement.height);
-        }
-        const btn = document.getElementById("btn");
-        btn.addEventListener('click', clearAll);
-        
-        //drawing function
-        function onResults(results) {
-            // let color = document.getElementById("color-choice").value;
-            let color = colorPicker.color.hexString;
-            canvasCtx.drawImage(
-                results.image, 0, 0, canvasElement.width, canvasElement.height);
-            if (results.multiHandLandmarks) {
-                for (const landmarks of results.multiHandLandmarks) {
+      //choose color
+      const colorPicker = new iro.ColorPicker("#color-choice", {
+        width: 80,
+        color: "#fff",
+        layout: [
+          {
+            component: iro.ui.Wheel,
+            options: {},
+          },
+        ],
+      });
 
-                    drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS,
-                        { color: '#00FF00', lineWidth: 5 });
-                    drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', lineWidth: 2 });
+      //line size
+      const line_width = document.getElementById("line_width");
+      let line_size = line_width.value;
+      line_width.addEventListener("input", (event) => {
+        line_size = event.target.value;
+      });
 
-                    const x1 = results.multiHandLandmarks[0][8].x;
-                    const y1 = results.multiHandLandmarks[0][8].y;
-                    const x2 = results.multiHandLandmarks[0][4].x;
-                    const y2 = results.multiHandLandmarks[0][4].y;
-                    const x3 = results.multiHandLandmarks[0][12].x;
-                    const y3 = results.multiHandLandmarks[0][12].y;
-                    const distance1 = Math.sqrt(Math.pow((x1 - x2), 2) + Math.pow((y1 - y2), 2));
-                    const distance2 = Math.sqrt(Math.pow((x3 - x2), 2) + Math.pow((y3 - y2), 2));
-                    const distance3 = Math.sqrt(Math.pow((x3 - x1), 2) + Math.pow((y3 - y1), 2));
-                    if ((distance1 >= 0.1) && (distance2 <= 0.2)) {
-                        positionElement.innerText = "DRAWING POSITION";
-                        if(prev_x && prev_y){
-                            paintCtx.lineWidth = line_width;
-                            paintCtx.beginPath();
-                            paintCtx.strokeStyle = `${color}`;
-                            paintCtx.fillStyle = `${color}`;
-                            paintCtx.moveTo(prev_x, prev_y);
-                            paintCtx.lineTo(x1 * canvasElement.width,  y1 * canvasElement.height);
-                            paintCtx.stroke();
-                            paintCtx.closePath();
-                            prev_x = x1 * canvasElement.width;
-                            prev_y = y1 * canvasElement.height;
-                        }
-                        else{
-                            paintCtx.beginPath();
-                            paintCtx.arc(x1 * canvasElement.width, y1 * canvasElement.height, 5, 0, 2 * Math.PI);
-                            paintCtx.fillStyle = `${color}`;
-                            paintCtx.fill();
-                            paintCtx.save();
-                            prev_x = x1 * canvasElement.width;
-                            prev_y = y1 * canvasElement.height;
-                        }
-                    }
-                    else if ((distance1 >= 0.1) && (distance2 >= 0.1) && (distance2 <= 0.4)) {
-                        positionElement.innerText = "ERASING POSITION";
-                        // paintCtx.clearRect(0,0,canvasElement.width,canvasElement.height);
-                        prev_x = undefined;
-                        prev_y = undefined;
-                        canvasCtx.fillStyle = "rgba(255, 255, 255,  0.6)";
-                        canvasCtx.fillRect(x3 * canvasElement.width, y3 * canvasElement.height,50,50);
-                        paintCtx.clearRect(x3 * canvasElement.width, y3 * canvasElement.height,50,50);
-                        continue;
-                    }
-                    else {
-                        positionElement.innerText = "DEFAULT POSITION";
-                        prev_x = undefined;
-                        prev_y = undefined;
-                    }
-                }
+      // eraser size
+      const eraser_width = document.getElementById("eraser_width");
+      let eraser_size = eraser_width.value;
+      eraser_width.addEventListener("input", (event) => {
+        eraser_size = event.target.value;
+      });
+
+      //hand connector
+      const connector = document.getElementById("connector");
+
+      //clearing full canvas
+      const clearAll = () => {
+        paintCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
+      };
+      const btn = document.getElementById("btn");
+      btn.addEventListener("click", clearAll);
+
+      //drawing function
+      function onResults(results) {
+        // let color = document.getElementById("color-choice").value;
+        let color = colorPicker.color.hexString;
+        canvasCtx.drawImage(
+          results.image,
+          0,
+          0,
+          canvasElement.width,
+          canvasElement.height
+        );
+
+        if (results.multiHandLandmarks) {
+          for (const landmarks of results.multiHandLandmarks) {
+            if (connector.checked) {
+              drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
+                color: "#00FF00",
+                lineWidth: 5,
+              });
+              drawLandmarks(canvasCtx, landmarks, {
+                color: "#FF0000",
+                lineWidth: 2,
+              });
             }
-        }
-        
-        
-        const hands = new Hands({
-            locateFile: (file) => {
-                return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+            const x1 = results.multiHandLandmarks[0][8].x;
+            const y1 = results.multiHandLandmarks[0][8].y;
+            const x2 = results.multiHandLandmarks[0][4].x;
+            const y2 = results.multiHandLandmarks[0][4].y;
+            const x3 = results.multiHandLandmarks[0][12].x;
+            const y3 = results.multiHandLandmarks[0][12].y;
+            const distance1 = Math.sqrt(
+              Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2)
+            );
+            const distance2 = Math.sqrt(
+              Math.pow(x3 - x2, 2) + Math.pow(y3 - y2, 2)
+            );
+            const distance3 = Math.sqrt(
+              Math.pow(x3 - x1, 2) + Math.pow(y3 - y1, 2)
+            );
+            if (distance1 >= 0.1 && distance2 <= 0.2) {
+              positionElement.innerText = "DRAWING POSITION";
+              if (prev_x && prev_y) {
+                paintCtx.lineWidth = line_width;
+                paintCtx.beginPath();
+                paintCtx.strokeStyle = `${color}`;
+                paintCtx.fillStyle = `${color}`;
+                paintCtx.moveTo(prev_x, prev_y);
+                paintCtx.lineTo(
+                  x1 * canvasElement.width,
+                  y1 * canvasElement.height
+                );
+                paintCtx.stroke();
+                paintCtx.closePath();
+                prev_x = x1 * canvasElement.width;
+                prev_y = y1 * canvasElement.height;
+              } else {
+                paintCtx.beginPath();
+                paintCtx.arc(
+                  x1 * canvasElement.width,
+                  y1 * canvasElement.height,
+                  5,
+                  0,
+                  2 * Math.PI
+                );
+                paintCtx.fillStyle = `${color}`;
+                paintCtx.fill();
+                paintCtx.save();
+                prev_x = x1 * canvasElement.width;
+                prev_y = y1 * canvasElement.height;
+              }
+            } else if (
+              distance1 >= 0.1 &&
+              distance2 >= 0.1 &&
+              distance2 <= 0.4
+            ) {
+              positionElement.innerText = "ERASING POSITION";
+              // paintCtx.clearRect(0,0,canvasElement.width,canvasElement.height);
+              prev_x = undefined;
+              prev_y = undefined;
+              canvasCtx.fillStyle = "rgba(255, 255, 255,  0.6)";
+              canvasCtx.fillRect(
+                x3 * canvasElement.width,
+                y3 * canvasElement.height,
+                eraser_size,
+                eraser_size
+              );
+              paintCtx.clearRect(
+                x3 * canvasElement.width,
+                y3 * canvasElement.height,
+                eraser_size,
+                eraser_size
+              );
+              continue;
+            } else {
+              positionElement.innerText = "DEFAULT POSITION";
+              prev_x = undefined;
+              prev_y = undefined;
             }
-        });
-        hands.setOptions({
-            maxNumHands: 1,
-            modelComplexity: 1,
-            minDetectionConfidence: 0.5,
-            minTrackingConfidence: 0.5
-        });
-        hands.onResults(onResults);
+          }
+        }
+      }
 
-        const camera = new Camera(videoElement, {
-            onFrame: async () => {
-                await hands.send({ image: videoElement });
-            },
-            width: 750,
-            height: 350
-        });
-        camera.start();
+      const hands = new Hands({
+        locateFile: (file) => {
+          return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+        },
+      });
+      hands.setOptions({
+        maxNumHands: 1,
+        modelComplexity: 1,
+        minDetectionConfidence: 0.5,
+        minTrackingConfidence: 0.5,
+      });
+      hands.onResults(onResults);
+
+      const camera = new Camera(videoElement, {
+        onFrame: async () => {
+          await hands.send({ image: videoElement });
+        },
+        width: 750,
+        height: 350,
+      });
+      camera.start();
     </script>
-</body>
-
+  </body>
 </html>
