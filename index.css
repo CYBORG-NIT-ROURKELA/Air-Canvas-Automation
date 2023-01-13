@@ -17,17 +17,20 @@
 }
 
 #container {
-    position: absolute;
-    margin-top: 20px;
-    width: 100%;
+    position: relative;
+    width: 90%;
     height: 100px;
     filter: url(#threshold) blur(0.6px);
 }
 
 #text1,
 #text2 {
-    position: relative;
-    width: 100%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+/* height: 50px; */
+    width: 90%;
     display: inline-block;
     font-family: "air-canvas-font", sans-serif;
     font-size: 2em;
@@ -114,6 +117,7 @@ height: 100%;
 gap: 1rem;
 
 }
+
 .wrapper-btn{
     display: flex;
     justify-content: space-evenly;
@@ -143,7 +147,10 @@ gap: 1rem;
     justify-content: center;
     align-items: center;
 }
-#btn{
+.download{
+padding: 1rem;
+}
+.btn{
     outline: none;
     border: none;
     padding: 0.6rem;
@@ -152,7 +159,7 @@ gap: 1rem;
     box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.9);
     transition: all 0.2s ease-in-out;
 }
-#btn:hover{
+.btn:hover{
     box-shadow: -2px -2px 3px rgba(0, 0, 0, 0.9);
 }
 
@@ -160,7 +167,7 @@ gap: 1rem;
 @media screen and (max-width: 768px) {
     .container2{
         grid-template-columns:  1fr;
-        grid-template-rows: 0.75fr 1fr 1fr;
+        grid-template-rows: 0.75fr 1fr 1.15fr;
         gap: 0;
         padding: 0;
     }
