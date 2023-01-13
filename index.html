@@ -15,16 +15,12 @@
 
 <body>
   <nav class="navbar">
-    <!-- <div class="navbar-brand"> -->
-    <!-- <a class="navbar-brand" href="#">
-            <img src="" alt="" width="30" height="24">
-        </a> -->
-    <!-- <h1 class="text-primary">AIR CANVAS</h1> -->
+
     <div id="container">
       <span id="text1"></span>
       <span id="text2"></span>
     </div>
-    <svg id="filters">
+    <svg id="filters" style="display: none;">
       <defs>
         <filter id="threshold">
           <feColorMatrix in="SourceGraphic" type="matrix" values="1 0 0 0 0
@@ -35,6 +31,7 @@
       </defs>
     </svg>
 
+    <div class="download"><button class="btn" id="download">Export</button></div>
     <!-- </div> -->
   </nav>
   <div class="container2">
@@ -69,7 +66,7 @@
           <span>Hand connector</span>
           <input type="checkbox" id="connector" value="" />
         </div>
-        <button id="btn">Clear All</button>
+        <button id="btn" class="btn">Clear All</button>
       </div>
     </div>
   </div>
@@ -127,6 +124,18 @@
     };
     const btn = document.getElementById("btn");
     btn.addEventListener("click", clearAll);
+
+    // download image
+    const download = () => {
+      const a = document.createElement("a");
+      document.body.appendChild(a);
+      a.download = "canvas-image.png";
+      a.href = paintElement.toDataURL();
+      a.click();
+      document.body.removeChild(a);
+
+    }
+  document.getElementById("download").addEventListener("click", download);
 
     //drawing function
     function onResults(results) {
@@ -259,7 +268,7 @@
       "Cyborg"
     ];
 
-    const morphTime = 5;
+    const morphTime = 3;
     const cooldownTime = 0.25;
 
     let textIndex = texts.length - 1;
@@ -308,7 +317,7 @@
 
       let newTime = new Date();
       let shouldIncrementIndex = cooldown > 0;
-      let dt = (newTime - time) / 2000;
+      let dt = (newTime - time) / 3000;
       time = newTime;
 
       cooldown -= dt;
