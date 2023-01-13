@@ -148,11 +148,7 @@
             if (connector.checked) {
               drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, {
                 color: "#00FF00",
-                lineWidth: 5,
-              });
-              drawLandmarks(canvasCtx, landmarks, {
-                color: "#FF0000",
-                lineWidth: 2,
+                lineWidth: 1,
               });
             }
             const x1 = results.multiHandLandmarks[0][8].x;
@@ -173,7 +169,7 @@
             if (distance1 >= 0.1 && distance2 <= 0.2) {
               positionElement.innerText = "DRAWING POSITION";
               if (prev_x && prev_y) {
-                paintCtx.lineWidth = line_width;
+                paintCtx.lineWidth = line_size;
                 paintCtx.beginPath();
                 paintCtx.strokeStyle = `${color}`;
                 paintCtx.fillStyle = `${color}`;
@@ -191,7 +187,7 @@
                 paintCtx.arc(
                   x1 * canvasElement.width,
                   y1 * canvasElement.height,
-                  5,
+                  line_size/2,
                   0,
                   2 * Math.PI
                 );
